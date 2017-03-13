@@ -156,5 +156,3 @@ JSONDiff.isObject = function(val) {
 }
 
 module.exports = JSONDiff;
-
-console.log(JSON.stringify(JSONDiff.deepDiff(left, right), null, '  '));
