@@ -34,15 +34,20 @@ app.put('/json', function(req, res) {
     return res.status(400).send(msg);
   }
 
+  console.log('Received diff from client:')
+  console.log(JSON.stringify(req.body, null, ' '));
+
   try {
     console.log('Patching JSON object');
-    jsonDiff.patch(jsonObject, req.body);
+    // Create a deep copy of the JSON object in case patch fails part way through
+    var objectCopy = JSON.parse(JSON.stringify(jsonObject));
+    jsonDiff.patch(objectCopy, req.body);
     console.log('Object looks like:');
-    console.log(JSON.stringify(jsonObject, null, ' '));
+    console.log(JSON.stringify(objectCopy, null, ' '));
+    jsonObject = objectCopy;
   } catch(e) {
-    var msg = 'Invalid diff; could not apply. Object may have lost integrity; clearing storage.';
+    var msg = 'Invalid diff; could not apply.';
     console.log(msg);
-    jsonObject = null;
     return res.status(400).send(msg);
   }
 
@@ -53,3 +58,4 @@ app.put('/json', function(req, res) {
 app.listen(8080);
 
 console.log('Listening on 8080');
+
