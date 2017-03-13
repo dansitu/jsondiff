@@ -62,11 +62,7 @@ function deepDiff(original, replacement) {
     // If the new one is also an object, recurse
     if(isObject(newProperty)) {
       var subdiff = deepDiff(originalProperty, newProperty, key);
-      if(!subdiff.length) return;
-
-      edits.push({
-        action: 'edit', key: key, edits: subdiff
-      });
+      if(subdiff.length) edits.push(editKey(key, subdiff));
     } else {
       // Otherwise, just replace it
       edits.push(replaceKey(key, newProperty));
@@ -97,12 +93,8 @@ function addKey(key, value) {
   return { action: 'add', key: key, value: value };
 };
 
-function beginEdit(key) {
-  return { action: 'beginEdit', key: key };
-};
-
-function endEdit() {
-  return { action: 'endEdit' };
+function editKey(key, subdiff) {
+  return { action: 'edit', key: key, edits: subdiff };
 };
 
 function isPrimitive(test) {
