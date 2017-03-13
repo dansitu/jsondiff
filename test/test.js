@@ -116,6 +116,104 @@ describe('JSONDiff', function() {
     
     });
 
-  });
+		it('should handle nulls', function() {
+
+      var left = {
+				nullToValue: null,
+				valueToNull: 'value',
+				nullToNull: null,
+      };
+      var right = {
+				nullToValue: 'value',
+				valueToNull: null,
+				nullToNull: null,
+				newNull: null,
+      };
+
+      var diff = jsonDiff.deepDiff(left, right);
+
+      diff.length.should.equal(3);
+			diff.should.deepEqual([
+				{
+					"action": "replace",
+					"key": "nullToValue",
+					"value": "value"
+				},
+				{
+					"action": "replace",
+					"key": "valueToNull",
+					"value": null
+				},
+				{
+					"action": "add",
+					"key": "newNull",
+					"value": null
+				}
+			]);
+
+		});
+
+		it('should return any edits recursively', function() {
+
+			var left = {
+				same: true,
+				someProperty: {
+					nested: {
+						complex: true
+					},
+					greeting: 'good morning'
+				}
+			};
+			var right = {
+				same: true,
+				someProperty: {
+					nested: {
+						complex: {
+							veryComplex: true
+						}
+					},
+					greeting: 'good afternoon',
+					newProperty: 'hey'
+				}
+			};
+
+			var diff = jsonDiff.deepDiff(left, right);
+
+			diff.length.should.equal(1);
+			diff.should.deepEqual([
+				{
+					"action": "edit",
+					"key": "someProperty",
+					"edits": [
+						{
+							"action": "edit",
+							"key": "nested",
+							"edits": [
+								{
+									"action": "replace",
+									"key": "complex",
+									"value": {
+										"veryComplex": true
+									}
+								}
+							]
+						},
+						{
+							"action": "replace",
+							"key": "greeting",
+							"value": "good afternoon"
+						},
+						{
+							"action": "add",
+							"key": "newProperty",
+							"value": 'hey'
+						}
+					]
+				}
+			]);
+
+		});
+
+	});
 
 });
