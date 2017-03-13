@@ -1,4 +1,5 @@
 var fs = require('fs');
+var request = require('request');
 
 var jsonDiff = require('./jsonDiff');
 
@@ -22,7 +23,7 @@ var jsonObject;
 doWork();
 
 // Watch file for any changes
-fs.watchFile(filePath, doWork);
+fs.watchFile(filePath, { interval: 10 }, doWork);
 
 function doWork(curr, prev) {
   if(jsonObject) console.log('File write detected');
@@ -39,19 +40,46 @@ function doWork(curr, prev) {
 
   // If we're not already tracking JSON, store this data
   if(!jsonObject) {
-    jsonObject = fileJSON;
-    // TODO: Send to server
-    console.log('Sent file to server');
+    request({
+      uri: 'http://localhost:8080/json',
+      method: 'POST',
+      json: true,
+      body: fileJSON
+    }, function(error, response, body) {
+      if(error || response.statusCode !== 200) {
+        console.log('Error sending file to server');
+        console.log(error);
+        console.log(response);
+        return;
+      }
+
+      jsonObject = fileJSON;
+      console.log('Sent file to server');
+    });
+
     return;
   }
 
   // Diff the file and send it to the server
   var diff = jsonDiff.deepDiff(jsonObject, fileJSON);
-  // TODO: Send to server
   if(diff.length) {
-    console.log(diff)
-    console.log('Synced diff with server');
-    jsonObject = fileJSON;
+    request({
+      uri: 'http://localhost:8080/json',
+      method: 'PUT',
+      json: true,
+      body: diff
+    }, function(error, response, body) {
+      if(error || response.statusCode !== 200) {
+        console.log('Error sending diff to server');
+        console.log(error);
+        console.log(response);
+        return;
+      }
+
+      console.log('Synced diff with server');
+      jsonObject = fileJSON;
+    });
+
   } else {
     console.log('No differences in JSON');
   }

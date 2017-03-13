@@ -51,3 +51,5 @@ app.put('/json', function(req, res) {
 });
 
 app.listen(8080);
+
+console.log('Listening on 8080');
