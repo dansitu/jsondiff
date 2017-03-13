@@ -2,6 +2,9 @@ var left = {
     "id": 2,
     "firstName": "Joseph",
     "lastName": "Smith",
+    nullToValue: null,
+    valueToNull: 'value',
+    nullToNull: null,
     "shippingAddress": {
         "street": "6209 Novick Road",
         "suite": "142",
@@ -24,6 +27,10 @@ var right = {
     "firstName": "Joseph",
     "middleName": "Nicolas",
     "lastName": "Smith",
+    nullToValue: 'value',
+    valueToNull: null,
+    nullToNull: null,
+    newNull: null,
     "shippingAddress": {
         "street": "53 Kings Park",
         "company": "Acme Inc.",
