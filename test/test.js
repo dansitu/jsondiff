@@ -35,6 +35,87 @@ describe('JSONDiff', function() {
     
     });
 
+    it('should return any removals', function() {
+    
+      var left = {
+        someProperty: 'yay',
+        otherProperty: 123
+      };
+      var right = {
+      };
+
+      var diff = jsonDiff.deepDiff(left, right);
+
+      diff.length.should.equal(2);
+      diff.should.deepEqual([
+        { action: 'remove', key: 'someProperty' },
+        { action: 'remove', key: 'otherProperty' },
+      ]);
+    
+    });
+
+    it('should return any replacements', function() {
+    
+      var left = {
+        someProperty: 'yay',
+        otherProperty: 123
+      };
+      var right = {
+        someProperty: 'woo',
+        otherProperty: {
+          complex: true
+        }
+      };
+
+      var diff = jsonDiff.deepDiff(left, right);
+
+      diff.length.should.equal(2);
+      diff.should.deepEqual([
+        { action: 'replace', key: 'someProperty', value: 'woo' },
+        { action: 'replace', key: 'otherProperty', value: { complex: true } },
+      ]);
+    
+    });
+
+    it('should replace arrays', function() {
+    
+      var left = {
+        array: [ 'abc' ]
+      };
+      var right = {
+        array: [ 'abc', 'def' ]
+      };
+
+      var diff = jsonDiff.deepDiff(left, right);
+
+      diff.length.should.equal(1);
+      diff.should.deepEqual([
+        { action: 'replace', key: 'array', value: [ 'abc', 'def' ] },
+      ]);
+    
+    });
+
+    it('should return any additions', function() {
+    
+      var left = {
+        someProperty: 'yay',
+        otherProperty: 123
+      };
+      var right = {
+        someProperty: 'yay',
+        otherProperty: 123,
+        newProperty: 'i am new'
+      };
+
+      var diff = jsonDiff.deepDiff(left, right);
+
+      diff.length.should.equal(1);
+      diff.should.deepEqual([
+        { action: 'add', key: 'newProperty', value: 'i am new' },
+      ]);
+    
+    });
+
   });
 
 });
