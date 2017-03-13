@@ -40,45 +40,45 @@ var right = {
     "hobbies": ["Fishing", "Chess"]
 };
 
-function deepDiff(original, replacement) {
+var JSONDiff = {};
+
+JSONDiff.deepDiff = function (original, replacement) {
 
   var edits = [];
-
-  var originalKeys = Object.keys(original);
 
   Object.keys(original).forEach(function(key) {
     var originalProperty = original[key];
 
     // If item no longer present, remove it
     if(!replacement.hasOwnProperty(key)) {
-      edits.push(removeKey(key));
+      edits.push(JSONDiff.removeKey(key));
       return;
     }
 
     var newProperty = replacement[key];
 
     // If item is a primitive, compare equality
-    if(isPrimitive(originalProperty)) {
+    if(JSONDiff.isPrimitive(originalProperty)) {
       if(original[key] !== replacement[key]) {
-        edits.push(replaceKey(key, newProperty));
+        edits.push(JSONDiff.replaceKey(key, newProperty));
       }
       return;
     }
 
     // If an array, replace it
-    if(isArray(originalProperty)) {
-      edits.push(replaceKey(key, newProperty));
+    if(JSONDiff.isArray(originalProperty)) {
+      edits.push(JSONDiff.replaceKey(key, newProperty));
       return;
     }
 
     // Otherwise, this property is an object.
     // If the new one is also an object, recurse
-    if(isObject(newProperty)) {
-      var subdiff = deepDiff(originalProperty, newProperty, key);
-      if(subdiff.length) edits.push(editKey(key, subdiff));
+    if(JSONDiff.isObject(newProperty)) {
+      var subdiff = JSONDiff.deepDiff(originalProperty, newProperty, key);
+      if(subdiff.length) edits.push(JSONDiff.editKey(key, subdiff));
     } else {
       // Otherwise, just replace it
-      edits.push(replaceKey(key, newProperty));
+      edits.push(JSONDiff.replaceKey(key, newProperty));
     }
 
   });
@@ -86,7 +86,7 @@ function deepDiff(original, replacement) {
   // Check for any additions
   Object.keys(replacement).forEach(function(key) {
     if(!original.hasOwnProperty(key)) {
-      edits.push(addKey(key, replacement[key]));
+      edits.push(JSONDiff.addKey(key, replacement[key]));
     }
   });
 
@@ -94,32 +94,32 @@ function deepDiff(original, replacement) {
 
 };
 
-function replaceKey(key, value) {
+JSONDiff.replaceKey = function(key, value) {
   return { action: 'replace', key: key, value: value };
 };
 
-function removeKey(key) {
+JSONDiff.removeKey = function(key) {
   return { action: 'remove', key: key };
 };
 
-function addKey(key, value) {
+JSONDiff.addKey = function(key, value) {
   return { action: 'add', key: key, value: value };
 };
 
-function editKey(key, subdiff) {
+JSONDiff.editKey = function(key, subdiff) {
   return { action: 'edit', key: key, edits: subdiff };
 };
 
-function isPrimitive(test) {
+JSONDiff.isPrimitive = function(test) {
   return (test !== Object(test));
 };
 
-function isArray(test) {
+JSONDiff.isArray = function(test) {
   return test.constructor === Array;
 }
 
-function isObject(val) {
-  return !isPrimitive(val);
+JSONDiff.isObject = function(val) {
+  return !JSONDiff.isPrimitive(val);
 }
 
-console.log(JSON.stringify(deepDiff(left, right), null, '  '));
+console.log(JSON.stringify(JSONDiff.deepDiff(left, right), null, '  '));
