@@ -7,7 +7,14 @@ var left = {
         "suite": "142",
         "city": "New Haven",
         "zip": "06533",
-        "state": "CT"
+        "state": "CT",
+        otherState: {
+          hello: true,
+          gone: 'yes',
+          newData: {
+            tree: 'nope'
+          }
+        }
     },
     "hobbies": ["Fishing", "Hiking"]
 };
@@ -22,7 +29,13 @@ var right = {
         "company": "Acme Inc.",
         "city": "New Haven",
         "zip": "07532",
-        "state": "CT"
+        "state": "CT",
+        otherState: {
+          hello: true,
+          newData: {
+            tree: 'yay'
+          }
+        }
     },
     "hobbies": ["Fishing", "Chess"]
 };
