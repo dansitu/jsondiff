@@ -1,0 +1,13 @@
+{
+    "id": 2,
+    "firstName": "Joseph",
+    "lastName": "Smith",
+    "shippingAddress": {
+        "street": "6209 Novick Road",
+        "suite": "142",
+        "city": "New Haven",
+        "zip": "06533",
+        "state": "CT"
+    },
+    "hobbies": ["Fishing", "Hiking"]
+}
