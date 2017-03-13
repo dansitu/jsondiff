@@ -1,51 +1,3 @@
-var left = {
-    "id": 2,
-    "firstName": "Joseph",
-    "lastName": "Smith",
-    nullToValue: null,
-    valueToNull: 'value',
-    nullToNull: null,
-    "shippingAddress": {
-        "street": "6209 Novick Road",
-        "suite": "142",
-        "city": "New Haven",
-        "zip": "06533",
-        "state": "CT",
-        otherState: {
-          hello: true,
-          gone: 'yes',
-          newData: {
-            tree: 'nope'
-          }
-        }
-    },
-    "hobbies": ["Fishing", "Hiking"]
-};
-
-var right = {
-    "id": 2,
-    "firstName": "Joseph",
-    "middleName": "Nicolas",
-    "lastName": "Smith",
-    nullToValue: 'value',
-    valueToNull: null,
-    nullToNull: null,
-    newNull: null,
-    "shippingAddress": {
-        "street": "53 Kings Park",
-        "company": "Acme Inc.",
-        "city": "New Haven",
-        "zip": "07532",
-        "state": "CT",
-        otherState: {
-          hello: true,
-          newData: {
-            tree: 'yay'
-          }
-        }
-    },
-    "hobbies": ["Fishing", "Chess"]
-};
 
 var JSONDiff = {};
 
@@ -67,6 +19,36 @@ JSONDiff.deepDiff = function (original, replacement) {
   });
 
   return edits;
+
+};
+
+/* 
+ * Patches an `original` object with a sequence of changes defined by `patch`
+ */
+JSONDiff.patch = function(original, patch) {
+
+	patch.forEach(function(item) {
+    if(item.action === 'remove') {
+      delete original[item.key];
+      return;
+    }
+
+		if(item.action === 'replace') {
+			original[item.key] = item.value;
+			return;
+		}
+
+    if(item.action === 'add') {
+      original[item.key] = item.value;
+      return;
+    }
+
+    if(item.action === 'edit') {
+      JSONDiff.patch(original[item.key], item.edits);
+    }
+	});
+
+  return original;
 
 };
 
@@ -156,3 +138,4 @@ JSONDiff.isObject = function(val) {
 }
 
 module.exports = JSONDiff;
+

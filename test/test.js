@@ -216,4 +216,96 @@ describe('JSONDiff', function() {
 
 	});
 
+  describe('#patch()', function() {
+  
+    it('should apply removals', function() {
+      
+      var original = {
+        removeMe: true,
+        dontRemoveMe: true
+      };
+
+      jsonDiff.patch(original, [
+        { action: 'remove', key: 'removeMe' }
+      ]);
+
+      original.should.deepEqual({
+        dontRemoveMe: true
+      });
+    
+    });
+
+    it('should apply replacements', function() {
+      
+      var original = {
+        dontRemoveMe: true,
+        replaceMe: 'omg'
+      };
+
+      jsonDiff.patch(original, [
+        { action: 'replace', key: 'replaceMe', value: 'thx' }
+      ]);
+
+      original.should.deepEqual({
+        dontRemoveMe: true,
+        replaceMe: 'thx'
+      });
+    
+    });
+
+    it('should apply additions', function() {
+      
+      var original = {
+        dontRemoveMe: true,
+      };
+
+      jsonDiff.patch(original, [
+        { action: 'add', key: 'addMe', value: 'thx' }
+      ]);
+
+      original.should.deepEqual({
+        dontRemoveMe: true,
+        addMe: 'thx'
+      });
+    
+    });
+
+    it('should work recursively', function() {
+      
+      var original = {
+        dontRemoveMe: true,
+        deeplyNested: {
+          soDeep: true,
+          moreNesting: {
+            greeting: 'hey'
+          }
+        }
+      };
+
+      jsonDiff.patch(original, [
+        { action: 'edit', key: 'deeplyNested', edits: [
+            { action: 'add', key: 'newValue', value: 'hihi' },
+            { action: 'edit', key: 'moreNesting', edits: [
+                { action: 'replace', key: 'greeting', value: 'hola' }
+              ]
+            }
+          ]
+        }
+      ]);
+
+      original.should.deepEqual({
+        dontRemoveMe: true,
+        deeplyNested: {
+          soDeep: true,
+          newValue: 'hihi',
+          moreNesting: {
+            greeting: 'hola'
+          }
+        }
+      });
+    
+    });
+  
+  });
+
 });
