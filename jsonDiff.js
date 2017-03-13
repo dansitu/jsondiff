@@ -27,16 +27,16 @@ JSONDiff.deepDiff = function (original, replacement) {
  */
 JSONDiff.patch = function(original, patch) {
 
-	patch.forEach(function(item) {
+  patch.forEach(function(item) {
     if(item.action === 'remove') {
       delete original[item.key];
       return;
     }
 
-		if(item.action === 'replace') {
-			original[item.key] = item.value;
-			return;
-		}
+    if(item.action === 'replace') {
+      original[item.key] = item.value;
+      return;
+    }
 
     if(item.action === 'add') {
       original[item.key] = item.value;
@@ -46,7 +46,7 @@ JSONDiff.patch = function(original, patch) {
     if(item.action === 'edit') {
       JSONDiff.patch(original[item.key], item.edits);
     }
-	});
+  });
 
   return original;
 
