@@ -48,6 +48,7 @@ var right = {
 };
 
 var JSONDiff = {};
+
 /*
  * Returns a diff array that describes the changes from `original` to `replacement`
  */
@@ -98,8 +99,8 @@ JSONDiff.recordUpdates = function(key, original, replacement, edits) {
     return;
   }
 
-  // Otherwise, this property is an object.
-  // If the property is still an object, recurse to get changes.
+  // If we made it this far, this property is an object.
+  // If the property remains an object, recurse to get changes.
   if(JSONDiff.isObject(newProperty)) {
     var subdiff = JSONDiff.deepDiff(originalProperty, newProperty, key);
     if(subdiff.length) edits.push(JSONDiff.editKey(key, subdiff));
@@ -142,6 +143,7 @@ JSONDiff.editKey = function(key, subdiff) {
  * Tests for property types
  */
 JSONDiff.isPrimitive = function(test) {
+  // Object(test) returns the same object if test is an Object or Array, else null
   return (test !== Object(test));
 };
 
