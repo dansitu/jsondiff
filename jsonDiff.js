@@ -27,74 +27,61 @@ var right = {
     "hobbies": ["Fishing", "Chess"]
 };
 
-function diff(first, second) {
+function deepDiff(original, replacement) {
 
-  var changes = [];
+  var edits = [];
 
-  function deepDiff(original, replacement, editingName) {
+  var originalKeys = Object.keys(original);
 
-    var edits = [];
+  Object.keys(original).forEach(function(key) {
+    var originalProperty = original[key];
 
-    var originalKeys = Object.keys(original);
-
-    Object.keys(original).forEach(function(key) {
-      var originalProperty = original[key];
-
-      // If item no longer present, remove it
-      if(!replacement.hasOwnProperty(key)) {
-        edits.push(removeKey(key));
-        return;
-      }
-
-      var newProperty = replacement[key];
-
-      // If item is a primitive, compare equality
-      if(isPrimitive(originalProperty)) {
-        if(original[key] !== replacement[key]) {
-          edits.push(replaceKey(key, newProperty));
-        }
-        return;
-      }
-
-      // If an array, replace it
-      if(isArray(originalProperty)) {
-        edits.push(replaceKey(key, newProperty));
-        return;
-      }
-    
-      // Otherwise, this property is an object.
-      // If the new one is also an object, recurse
-      if(isObject(newProperty)) {
-        deepDiff(originalProperty, newProperty, key);
-      } else {
-        // Otherwise, just replace it
-        edits.push(replaceKey(key, newProperty));
-      }
-      
-    });
-
-    // Check for any additions
-    Object.keys(replacement).forEach(function(key) {
-      if(!original.hasOwnProperty(key)) {
-        edits.push(addKey(key, replacement[key]));
-      }
-    });
-
-    // If we're editing a sub-object and there are edits, add a 'begin' and 'end'
-    // so we can navigate to the appropriate property
-    if(editingName) {
-      if(edits.length) {
-        changes = changes.concat(beginEdit(editingName), edits, endEdit());
-      }
-    } else {
-      changes = changes.concat(edits);
+    // If item no longer present, remove it
+    if(!replacement.hasOwnProperty(key)) {
+      edits.push(removeKey(key));
+      return;
     }
-  
-  };
 
-  deepDiff(first, second);
+    var newProperty = replacement[key];
 
-  return changes;
+    // If item is a primitive, compare equality
+    if(isPrimitive(originalProperty)) {
+      if(original[key] !== replacement[key]) {
+        edits.push(replaceKey(key, newProperty));
+      }
+      return;
+    }
+
+    // If an array, replace it
+    if(isArray(originalProperty)) {
+      edits.push(replaceKey(key, newProperty));
+      return;
+    }
+
+    // Otherwise, this property is an object.
+    // If the new one is also an object, recurse
+    if(isObject(newProperty)) {
+      var subdiff = deepDiff(originalProperty, newProperty, key);
+      if(!subdiff.length) return;
+
+      edits.push({
+        action: 'edit', key: key, edits: subdiff
+      });
+    } else {
+      // Otherwise, just replace it
+      edits.push(replaceKey(key, newProperty));
+    }
+
+  });
+
+  // Check for any additions
+  Object.keys(replacement).forEach(function(key) {
+    if(!original.hasOwnProperty(key)) {
+      edits.push(addKey(key, replacement[key]));
+    }
+  });
+
+  return edits;
 
 };
 
@@ -119,7 +106,7 @@ function endEdit() {
 };
 
 function isPrimitive(test) {
-      return (test !== Object(test));
+  return (test !== Object(test));
 };
 
 function isArray(test) {
@@ -130,4 +117,4 @@ function isObject(val) {
   return !isPrimitive(val);
 }
 
-console.log(diff(left, right));
+console.log(JSON.stringify(deepDiff(left, right), null, '  '));
